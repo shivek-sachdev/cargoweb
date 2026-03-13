@@ -119,6 +119,15 @@ FOR EACH ROW
 WHEN (NEW.packing_list_no IS NULL OR NEW.packing_list_no = '')
 EXECUTE FUNCTION generate_packing_list_number();
 
+-- สร้างฟังก์ชันกลางสำหรับการอัพเดต updated_at
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = TIMEZONE('utc'::text, NOW());
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
 -- สร้าง trigger สำหรับ updated_at
 CREATE TRIGGER update_packing_lists_updated_at
 BEFORE UPDATE ON packing_lists

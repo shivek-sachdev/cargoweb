@@ -75,9 +75,12 @@ function LoginForm() {
 
         {/* Verified banner */}
         {verified && (
-          <div className="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-200 rounded-lg mb-6">
-            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-            <p className="text-sm text-emerald-700">Email verified successfully! You can now sign in.</p>
+          <div
+            className="flex items-center gap-2 p-3 rounded-lg mb-6 border"
+            style={{ backgroundColor: '#f0fdf4', borderColor: '#bbf7d0' }}
+          >
+            <CheckCircle2 className="w-5 h-5 shrink-0" style={{ color: 'var(--color-accent-ref)' }} />
+            <p className="text-sm" style={{ color: '#15803d' }}>Email verified successfully! You can now sign in.</p>
           </div>
         )}
 
@@ -101,7 +104,8 @@ function LoginForm() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="your@email.com"
                   required
-                  className="w-full pl-10 pr-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors"
+                  className="w-full pl-10 pr-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:border-[#215497] transition-colors"
+                  style={{ '--tw-ring-color': 'rgba(33,84,151,0.2)' } as React.CSSProperties}
                 />
               </div>
             </div>
@@ -116,7 +120,8 @@ function LoginForm() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
                   required
-                  className="w-full pl-10 pr-12 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors"
+                  className="w-full pl-10 pr-12 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:border-[#215497] transition-colors"
+                  style={{ '--tw-ring-color': 'rgba(33,84,151,0.2)' } as React.CSSProperties}
                 />
                 <button
                   type="button"
@@ -131,7 +136,11 @@ function LoginForm() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white font-semibold rounded-xl hover:from-emerald-700 hover:to-emerald-600 transition-all shadow-md shadow-emerald-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-3 text-white font-semibold rounded-xl transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              style={{
+                background: 'linear-gradient(to right, var(--color-primary-ref), var(--color-primary-dark-ref))',
+                boxShadow: '0 4px 14px rgba(33,84,151,0.25)',
+              }}
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -144,7 +153,11 @@ function LoginForm() {
           <div className="mt-6 text-center space-y-4">
             <p className="text-sm text-gray-500">
               Don&apos;t have an account?{' '}
-              <Link href="/site/register" className="text-emerald-600 font-semibold hover:text-emerald-700">
+              <Link
+                href="/site/register"
+                className="font-semibold hover:opacity-80"
+                style={{ color: 'var(--color-accent-ref)' }}
+              >
                 Register here
               </Link>
             </p>
@@ -176,10 +189,14 @@ export default function CustomerLoginPage() {
   return (
     <Suspense fallback={
       <div className="min-h-[calc(100vh-64px)] flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin" />
+        <div
+          className="w-8 h-8 border-4 rounded-full animate-spin"
+          style={{ borderColor: 'rgba(33,84,151,0.2)', borderTopColor: '#215497' }}
+        />
       </div>
     }>
       <LoginForm />
     </Suspense>
   );
 }
+

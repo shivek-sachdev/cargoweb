@@ -3,9 +3,9 @@ import NewsCard from "@/components/marketing/NewsCard";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
-    title: "Newsroom | OMG Experience",
+    title: "Newsroom",
     description:
-        "Company announcements, route updates, and industry news from OMG Experience.",
+        "Advanced Export & Logistics Solutions",
 };
 
 export const dynamic = 'force-dynamic';

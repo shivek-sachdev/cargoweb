@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "About Us | OMG Experience",
+    title: "About Us",
     description:
-        "OMG Experience: From GSA and airline distribution heritage to specialized pharmaceutical-grade logistics. Industry expertise and routing intelligence.",
+        "OMGEXP Cargo Portal: From GSA and airline distribution heritage to specialized pharmaceutical-grade logistics. Industry expertise and routing intelligence.",
 };
 
 export default function AboutPage() {
@@ -26,7 +26,7 @@ export default function AboutPage() {
                     From Airline Distribution to Specialized Logistics
                 </h2>
                 <p className="mt-4 text-neutral-600">
-                    OMG Experience has built its expertise on a foundation of traditional
+                    OMGEXP Cargo Portal has built its expertise on a foundation of traditional
                     airline distribution and GSA (General Sales Agent) heritage. Our deep
                     understanding of aviation networks and cargo operations has enabled us
                     to transition into specialized pharmaceutical-grade logistics.

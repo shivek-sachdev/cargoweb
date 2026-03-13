@@ -55,7 +55,7 @@ export default function Footer() {
                     </a>
                 </div>
                 <div className="mt-8 border-t border-white/20 pt-8 text-center text-sm text-white/70">
-                    &copy; {new Date().getFullYear()} OMG Experience. All rights reserved.
+                    &copy; {new Date().getFullYear()} OMGEXP Cargo Portal. All rights reserved.
                 </div>
             </div>
         </footer>

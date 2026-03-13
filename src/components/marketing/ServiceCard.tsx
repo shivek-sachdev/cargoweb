@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 interface ServiceCardProps {
     title: string;
@@ -19,11 +20,12 @@ export default function ServiceCard({
         <div className="group flex flex-col overflow-hidden rounded-lg border border-neutral-200 bg-white premium-shadow-hover">
             {imageUrl && (
                 <div className="relative h-48 overflow-hidden">
-                    {/* Using img for reference 1:1 match */}
-                    <img
+                    <Image
                         src={imageUrl}
                         alt={title}
-                        className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-cover transition duration-300 group-hover:scale-105"
                     />
                 </div>
             )}

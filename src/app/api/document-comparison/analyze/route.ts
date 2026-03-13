@@ -553,29 +553,22 @@ ${JSON.stringify(fieldsTemplate, null, 2)}`;
       }
 
       // DEBUG: Log the full prompt being sent to AI
-      console.log('=== FULL PROMPT SENT TO AI ===');
+      console.log('=== FULL PROMPT SENT TO AI (Optimized - no base64 re-send) ===');
       console.log('Prompt length:', comparisonPrompt.length);
       console.log('Critical checks count:', criticalChecks.length);
-      console.log('First 2000 characters:', comparisonPrompt.substring(0, 2000));
-      console.log('Last 1000 characters:', comparisonPrompt.substring(Math.max(0, comparisonPrompt.length - 1000)));
       console.log('=== END PROMPT ===');
 
-      // Prepare all files for multimodal input
-      const contents: Array<{ inlineData: { mimeType: string; data: string } } | string> = [];
-      for (const doc of documentsWithData) {
-        contents.push({
-          inlineData: {
-            mimeType: doc.mimeType,
-            data: doc.base64Data,
-          },
-        });
-      }
-      contents.push(comparisonPrompt);
+      // OPTIMIZED: Send only extracted structured data, NOT raw base64 files
+      // Phase 1 already extracted all relevant fields from the documents.
+      // Re-sending multi-megabyte base64 blobs wastes tokens and causes timeouts.
+      const contextSummary = `\n\n--- EXTRACTED DATA FROM ALL DOCUMENTS ---\n${JSON.stringify(allDocuments, null, 2)}\n--- END EXTRACTED DATA ---`;
+
+      const fullPrompt = comparisonPrompt + contextSummary;
 
       // Generate comprehensive review with retry logic
       const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
       const response = await retryWithBackoff(
-        () => model.generateContent(contents),
+        () => model.generateContent(fullPrompt),
         3, // max retries
         3000 // base delay 3 seconds (longer for complex requests)
       );

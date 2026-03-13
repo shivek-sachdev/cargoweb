@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import ContactForm from "@/components/marketing/ContactForm";
 
 export const metadata: Metadata = {
-    title: "Contact Us | OMG Experience",
+    title: "Contact Us",
     description:
-        "Request a quote for air freight, customs clearance, warehousing, or controlled temperature transport. OMG Experience logistics team.",
+        "Request a quote for air freight, customs clearance, warehousing, or controlled temperature transport. OMGEXP Cargo Portal logistics team.",
 };
 
 export default function ContactPage() {

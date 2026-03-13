@@ -3,9 +3,9 @@ import Link from "next/link";
 import { services } from "@/data/marketing-services";
 
 export const metadata: Metadata = {
-    title: "Services | OMG Experience",
+    title: "Services",
     description:
-        "Specialized air freight, shipping & customs, GDP warehousing, and controlled temperature transport. End-to-end logistics solutions from OMG Experience.",
+        "Advanced Export & Logistics Solutions",
 };
 
 export default function ServicesPage() {
@@ -24,7 +24,7 @@ export default function ServicesPage() {
             <div className="mb-16">
                 <h1 className="text-3xl font-bold text-neutral-900">Our Services</h1>
                 <p className="mt-4 text-lg text-neutral-600">
-                    OMG Experience delivers end-to-end logistics solutions for specialized
+                    OMGEXP Cargo Portal delivers end-to-end logistics solutions for specialized
                     air freight, customs clearance, pharmaceutical-grade warehousing, and
                     controlled temperature transport. Explore our service offerings below.
                 </p>

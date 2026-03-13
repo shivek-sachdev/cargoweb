@@ -21,7 +21,7 @@ export async function generateMetadata({
         .single();
     if (!item) return {};
     return {
-        title: `${item.title} | OMG Experience`,
+        title: item.title,
         description: item.excerpt,
         openGraph: {
             title: item.title,

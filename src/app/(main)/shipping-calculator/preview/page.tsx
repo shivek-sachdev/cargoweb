@@ -202,7 +202,7 @@ function QuotationPreviewContent() {
               </div>
               <div className="text-right">
                 {/* <div className="text-sm text-slate-500">Prepared by</div> */}
-                <div className="text-xl font-bold text-slate-900">OMG Experience</div>
+                <div className="text-xl font-bold text-slate-900">OMGEXP Cargo Portal</div>
               </div>
             </div>
 

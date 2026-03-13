@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 const pinnedAnnouncement = {
-    title: "OMG Experience Expands European Air Freight Routes — New direct services to Zurich, Lisbon, and Warsaw",
+    title: "OMGEXP Cargo Portal Expands European Air Freight Routes — New direct services to Zurich, Lisbon, and Warsaw",
     slug: "new-european-routes-2025",
 };
 

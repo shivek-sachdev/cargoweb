@@ -3,7 +3,7 @@ import ResourcesList from "@/components/marketing/ResourcesList";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
-    title: "Resources | OMG Experience",
+    title: "Resources",
     description:
         "Export and customs reading instructions. Guides for EU compliance, destination requirements, and documentation.",
 };

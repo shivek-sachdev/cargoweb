@@ -10,10 +10,10 @@ export interface NewsItem {
 export const newsroomData: NewsItem[] = [
     {
         slug: "new-european-routes-2025",
-        title: "OMG Experience Expands European Air Freight Routes",
+        title: "OMGEXP Cargo Portal Expands European Air Freight Routes",
         date: "2025-03-01",
         imageUrl: "https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?q=80&w=800&auto=format&fit=crop",
-        excerpt: "OMG Experience announces new direct routes to Zurich, Lisbon, and Warsaw, strengthening our pharmaceutical-grade logistics network across Europe.",
+        excerpt: "OMGEXP Cargo Portal announces new direct routes to Zurich, Lisbon, and Warsaw, strengthening our pharmaceutical-grade logistics network across Europe.",
         pinned: true,
     },
     {
@@ -21,7 +21,7 @@ export const newsroomData: NewsItem[] = [
         title: "GDP Certification Renewed",
         date: "2025-02-15",
         imageUrl: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=800&auto=format&fit=crop",
-        excerpt: "OMG Experience has successfully renewed its Good Distribution Practice certification, reaffirming our commitment to temperature-controlled logistics excellence.",
+        excerpt: "OMGEXP Cargo Portal has successfully renewed its Good Distribution Practice certification, reaffirming our commitment to temperature-controlled logistics excellence.",
     },
     {
         slug: "cantrak-integration-update",
@@ -42,6 +42,6 @@ export const newsroomData: NewsItem[] = [
         title: "Partnership with Leading Airlines Strengthens Capacity",
         date: "2025-01-05",
         imageUrl: "https://images.unsplash.com/photo-1436450412740-6b988f486c6b?q=80&w=800&auto=format&fit=crop",
-        excerpt: "Leveraging our GSA heritage, OMG Experience has secured priority capacity on key routes for specialized cargo handling.",
+        excerpt: "Leveraging our GSA heritage, OMGEXP Cargo Portal has secured priority capacity on key routes for specialized cargo handling.",
     },
 ];

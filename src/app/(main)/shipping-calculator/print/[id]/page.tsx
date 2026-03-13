@@ -213,7 +213,7 @@ export default function PrintQuotationPage() {
           <p className="text-sm text-slate-500">Ref: {data?.quotation_no || data?.id || 'N/A'}</p>
         </div>
         <div className="text-right">
-          <div className="text-xl font-bold text-slate-900">OMG Experience</div>
+          <div className="text-xl font-bold text-slate-900">OMGEXP Cargo Portal</div>
           <div className="text-sm text-slate-500">
             10/12-13 Convent Road, Silom, Bangrak,<br />
             Bangkok 10500
