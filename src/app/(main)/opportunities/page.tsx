@@ -280,7 +280,7 @@ export default function OpportunitiesPage() {
         company_id: opportunityData.companyId || null,
         amount: opportunityData.amount || 0,
         currency: opportunityData.currency || 'THB',
-        stage: opportunityData.stage || 'inquiry',
+        stage: opportunityData.stage || 'new',
         probability: opportunityData.probability || 10,
         close_date: opportunityData.closeDate ? new Date(opportunityData.closeDate).toISOString().split('T')[0] : null,
         vehicle_type: opportunityData.vehicleType || null,
@@ -461,16 +461,11 @@ export default function OpportunitiesPage() {
   };
 
   const getProbabilityForStage = (stage: OpportunityStage): number => {
-    switch (stage) {
-      case 'inquiry': return 10;
-      case 'quoting': return 20;
-      case 'pending_docs': return 30;
-      case 'pending_booking': return 45;
-      case 'booking_requested': return 60;
-      case 'awb_received': return 75;
-      case 'payment_received': return 85;
-      default: return 0;
-    }
+    const map: Record<string, number> = {
+      new: 10, under_review: 30, pending_booking: 50, booking_confirmed: 75,
+      delivered: 100, cancelled: 0, on_hold: 40,
+    };
+    return map[stage] ?? 0;
   };
 
   return (

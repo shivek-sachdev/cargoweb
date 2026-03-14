@@ -86,7 +86,7 @@ export function KanbanCard({ opportunity, onEdit, onDelete, onWinCase, onLoseCas
     if (opportunity.notes) params.set('notes', opportunity.notes);
 
     // Navigate to existing creation page
-    router.push(`/shipping-calculator/new?${params.toString()}`);
+    router.push(`/quotations/new?${params.toString()}`);
   };
 
   const quotationCount = opportunity.quotationIds?.length || 0;
@@ -319,7 +319,7 @@ export function KanbanCard({ opportunity, onEdit, onDelete, onWinCase, onLoseCas
                       <DropdownMenuItem
                         key={qId}
                         className="cursor-pointer text-xs"
-                        onSelect={() => router.push(`/shipping-calculator/preview?id=${qId}`)}
+                        onSelect={() => router.push(`/quotations/preview?id=${qId}`)}
                         onPointerDown={(e) => e.stopPropagation()}
                       >
                         <ExternalLink className="mr-2 h-3 w-3" />

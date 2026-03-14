@@ -51,7 +51,7 @@ export default function DebitNotePage() {
       const quotationData = await getQuotationById(quotationId);
       if (!quotationData) {
         toast.error('Quotation not found');
-        router.push('/shipping-calculator');
+        router.push('/quotations');
         return;
       }
       setQuotation(quotationData);
@@ -181,7 +181,7 @@ export default function DebitNotePage() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <p className="text-red-600 mb-4">Quotation not found</p>
-          <Button onClick={() => router.push('/shipping-calculator')}>
+          <Button onClick={() => router.push('/quotations')}>
             Back to Quotations
           </Button>
         </div>

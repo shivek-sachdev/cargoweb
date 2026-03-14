@@ -488,7 +488,7 @@ ${JSON.stringify(fieldsTemplate, null, 2)}`;
     console.log(`✓ Processed ${documentsWithData.length} documents`);
 
     // Phase 2: Generate comprehensive cross-document comparison
-    // EXACT LOGIC from ai-doc-review-main - DO NOT MODIFY
+    // Document comparison AI logic
     console.log('Phase 2: Performing cross-document analysis...');
 
     // Helper function to convert document_type slug to display name

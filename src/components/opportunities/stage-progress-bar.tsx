@@ -8,18 +8,23 @@ interface StageProgressBarProps {
     currentStage: OpportunityStage;
 }
 
-const STAGES: OpportunityStage[] = [
-    'inquiry',
-    'quoting',
-    'pending_docs',
+const PROGRESS_STAGES: OpportunityStage[] = [
+    'new',
+    'under_review',
     'pending_booking',
-    'booking_requested',
-    'awb_received',
-    'payment_received'
+    'booking_confirmed',
+    'delivered',
 ];
 
 export function StageProgressBar({ currentStage }: StageProgressBarProps) {
-    const currentIndex = STAGES.indexOf(currentStage);
+    const stageToProgressIndex: Record<string, number> = {
+        new: 0, under_review: 1, pending_booking: 2, booking_confirmed: 3,
+        delivered: 4, cancelled: 0, on_hold: 2,
+    };
+    const displayIndex = Math.min(
+        stageToProgressIndex[currentStage] ?? 0,
+        PROGRESS_STAGES.length - 1
+    );
 
     return (
         <div className="w-full py-4 px-2">
@@ -28,12 +33,12 @@ export function StageProgressBar({ currentStage }: StageProgressBarProps) {
                 <div className="absolute top-4 left-0 w-full h-0.5 bg-gray-200 -z-10" />
                 <div
                     className="absolute top-4 left-0 h-0.5 bg-emerald-500 transition-all duration-500 -z-10"
-                    style={{ width: `${(currentIndex / (STAGES.length - 1)) * 100}%` }}
+                    style={{ width: `${(displayIndex / (PROGRESS_STAGES.length - 1)) * 100}%` }}
                 />
 
-                {STAGES.map((stage, index) => {
-                    const isCompleted = index < currentIndex;
-                    const isActive = index === currentIndex;
+                {PROGRESS_STAGES.map((stage, index) => {
+                    const isCompleted = index < displayIndex;
+                    const isActive = index === displayIndex;
                     const label = STAGE_LABELS[stage];
 
                     return (

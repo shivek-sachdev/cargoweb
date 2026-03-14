@@ -168,7 +168,7 @@ function AuthRedirect() {
 
     // login แล้วแต่ไม่ใช่ customer → ไป internal
     if (profile && profile.role !== 'customer') {
-      window.location.href = '/shipping-calculator';
+      window.location.href = '/quotations';
       return;
     }
   }, [isLoading, user, profile]);

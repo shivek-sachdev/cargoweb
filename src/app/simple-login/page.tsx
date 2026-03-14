@@ -45,7 +45,7 @@ export default function SimpleLoginPage() {
 
       // Wait a moment for dramatic effect
       setTimeout(() => {
-        window.location.href = '/shipping-calculator';
+        window.location.href = '/quotations';
       }, 1000);
 
     } catch (err: unknown) {

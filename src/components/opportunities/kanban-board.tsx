@@ -14,7 +14,7 @@ import {
     DragEndEvent,
 } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
-import { Opportunity, OpportunityStage } from '@/types/opportunity';
+import { Opportunity, OpportunityStage, PIPELINE_STAGES } from '@/types/opportunity';
 import { KanbanColumn } from './kanban-column';
 import { KanbanCard } from './kanban-card';
 
@@ -74,15 +74,7 @@ function useDragToScroll() {
     };
 }
 
-const STAGES: OpportunityStage[] = [
-    'inquiry',
-    'quoting',
-    'pending_docs',
-    'pending_booking',
-    'booking_requested',
-    'awb_received',
-    'payment_received',
-];
+const STAGES: OpportunityStage[] = PIPELINE_STAGES;
 
 interface KanbanBoardProps {
     initialOpportunities: Opportunity[];
@@ -244,16 +236,11 @@ export function KanbanBoard({ initialOpportunities, onStageChange, onEditOpportu
     }
 
     const getProbabilityForStage = (stage: OpportunityStage): number => {
-        switch (stage) {
-            case 'inquiry': return 10;
-            case 'quoting': return 20;
-            case 'pending_docs': return 30;
-            case 'pending_booking': return 45;
-            case 'booking_requested': return 60;
-            case 'awb_received': return 75;
-            case 'payment_received': return 85;
-            default: return 0;
-        }
+        const map: Record<string, number> = {
+            new: 10, under_review: 30, pending_booking: 50, booking_confirmed: 75,
+            delivered: 100, cancelled: 0, on_hold: 40,
+        };
+        return map[stage] ?? 0;
     };
 
     const activeOpportunity = activeId ? opportunities.find(o => o.id === activeId) : null;

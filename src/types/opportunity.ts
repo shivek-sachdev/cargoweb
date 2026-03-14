@@ -1,65 +1,72 @@
+// Simplified air freight shipment pipeline (5 main stages)
 export type OpportunityStage =
-    | 'inquiry'
-    | 'quoting'
-    | 'pending_docs'
+    | 'new'
+    | 'under_review'
     | 'pending_booking'
-    | 'booking_requested'
-    | 'awb_received'
-    | 'payment_received';
+    | 'booking_confirmed'
+    | 'delivered'
+    | 'cancelled'
+    | 'on_hold';
 
-// Closure status - separate from stage
 export type ClosureStatus = 'won' | 'lost' | null;
 
 export interface Opportunity {
     id: string;
     topic: string;
     customerName: string;
-    companyId?: string; // Add companyId
+    companyId?: string;
     companyName: string;
     amount: number;
     currency: string;
     stage: OpportunityStage;
     probability: number;
-    closeDate: string; // ISO Date
+    closeDate: string;
     ownerName: string;
     createdAt: string;
     updatedAt: string;
 
-    // Optional fields
     vehicleType?: string;
     containerSize?: string;
     productDetails?: string;
     notes?: string;
-    destinationId?: string; // Added field
-    destinationName?: string; // Added field to show on card
-    productId?: string[]; // Array for multiple products
-    productName?: string[]; // Array for multiple products
+    destinationId?: string;
+    destinationName?: string;
+    productId?: string[];
+    productName?: string[];
 
-    // Links - Support multiple quotations
-    quotationIds?: string[]; // Array of linked quotation IDs
-
-    // Closure status - separate from stage (card can be won/lost at any stage)
+    quotationIds?: string[];
     closureStatus?: 'won' | 'lost' | null;
     focusColor?: string | null;
     sortOrder?: number | null;
 }
 
 export const STAGE_LABELS: Record<OpportunityStage, string> = {
-    inquiry: 'Initial Inquiry',
-    quoting: 'Quoting',
-    pending_docs: 'Pending Documents',
+    new: 'New',
+    under_review: 'Under Review',
     pending_booking: 'Pending Booking',
-    booking_requested: 'Booking Requested',
-    awb_received: 'AWB Received',
-    payment_received: 'Payment Received',
+    booking_confirmed: 'Booking Confirmed',
+    delivered: 'Delivered',
+    cancelled: 'Cancelled',
+    on_hold: 'On Hold',
 };
 
 export const STAGE_COLORS: Record<OpportunityStage, string> = {
-    inquiry: 'bg-slate-100 text-slate-700 border-slate-200',
-    quoting: 'bg-blue-50 text-blue-700 border-blue-200',
-    pending_docs: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+    new: 'bg-slate-100 text-slate-700 border-slate-200',
+    under_review: 'bg-amber-50 text-amber-700 border-amber-200',
     pending_booking: 'bg-purple-50 text-purple-700 border-purple-200',
-    booking_requested: 'bg-violet-50 text-violet-700 border-violet-200',
-    awb_received: 'bg-cyan-50 text-cyan-700 border-cyan-200',
-    payment_received: 'bg-amber-50 text-amber-700 border-amber-200',
+    booking_confirmed: 'bg-blue-50 text-blue-700 border-blue-200',
+    delivered: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    cancelled: 'bg-red-50 text-red-700 border-red-200',
+    on_hold: 'bg-yellow-50 text-yellow-700 border-yellow-200',
 };
+
+// Main pipeline stages for Kanban (5 core + 2 special)
+export const PIPELINE_STAGES: OpportunityStage[] = [
+    'new',
+    'under_review',
+    'pending_booking',
+    'booking_confirmed',
+    'delivered',
+    'on_hold',
+    'cancelled',
+];

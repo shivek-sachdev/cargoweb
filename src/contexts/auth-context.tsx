@@ -71,7 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Handle navigation after certain auth events
         if (event === 'SIGNED_IN' && window.location.pathname === '/login') {
           console.log('User signed in, redirecting to dashboard');
-          window.location.href = '/shipping-calculator';
+          window.location.href = '/quotations';
         }
         
         setIsLoading(false);
@@ -101,7 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (data?.session) {
         console.log("Login successful, redirecting...");
         // Force a hard redirect instead of using router
-        window.location.href = '/shipping-calculator';
+        window.location.href = '/quotations';
         return { error: null, success: true };
       } else {
         console.error("No session after login");

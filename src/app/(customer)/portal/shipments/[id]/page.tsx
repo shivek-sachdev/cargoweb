@@ -108,15 +108,22 @@ function formatAmount(amount: number) {
 
 function getStageDisplay(stage?: string, status?: string) {
     if (status === 'completed') return { label: 'Delivered', color: 'text-emerald-700', bgColor: 'bg-emerald-50 border-emerald-200', step: 5 };
-    if (status === 'Shipped') return { label: 'Shipped', color: 'text-blue-700', bgColor: 'bg-blue-50 border-blue-200', step: 4 };
-    switch (stage) {
-        case 'payment_received': return { label: 'Payment Received', color: 'text-emerald-700', bgColor: 'bg-emerald-50 border-emerald-200', step: 5 };
-        case 'awb_received': return { label: 'AWB Received', color: 'text-blue-700', bgColor: 'bg-blue-50 border-blue-200', step: 4 };
-        case 'booking_requested': return { label: 'Booking Requested', color: 'text-cyan-700', bgColor: 'bg-cyan-50 border-cyan-200', step: 3 };
-        case 'pending_booking': return { label: 'Pending Booking', color: 'text-purple-700', bgColor: 'bg-purple-50 border-purple-200', step: 2 };
-        case 'pending_docs': return { label: 'Pending Documents', color: 'text-amber-700', bgColor: 'bg-amber-50 border-amber-200', step: 1 };
-        default: return { label: 'Preparing', color: 'text-slate-700', bgColor: 'bg-slate-50 border-slate-200', step: 0 };
-    }
+    if (status === 'Shipped') return { label: 'Booking Confirmed', color: 'text-blue-700', bgColor: 'bg-blue-50 border-blue-200', step: 4 };
+    const stageMap: Record<string, { label: string; color: string; bgColor: string; step: number }> = {
+        new: { label: 'New', color: 'text-slate-700', bgColor: 'bg-slate-50 border-slate-200', step: 1 },
+        under_review: { label: 'Under Review', color: 'text-amber-700', bgColor: 'bg-amber-50 border-amber-200', step: 2 },
+        pending_booking: { label: 'Pending Booking', color: 'text-purple-700', bgColor: 'bg-purple-50 border-purple-200', step: 3 },
+        booking_confirmed: { label: 'Booking Confirmed', color: 'text-blue-700', bgColor: 'bg-blue-50 border-blue-200', step: 4 },
+        delivered: { label: 'Delivered', color: 'text-emerald-700', bgColor: 'bg-emerald-50 border-emerald-200', step: 5 },
+        cancelled: { label: 'Cancelled', color: 'text-red-700', bgColor: 'bg-red-50 border-red-200', step: 0 },
+        on_hold: { label: 'On Hold', color: 'text-yellow-700', bgColor: 'bg-yellow-50 border-yellow-200', step: 2 },
+        pending_docs: { label: 'Under Review', color: 'text-amber-700', bgColor: 'bg-amber-50 border-amber-200', step: 2 },
+        documents_submitted: { label: 'Under Review', color: 'text-amber-700', bgColor: 'bg-amber-50 border-amber-200', step: 2 },
+        payment_received: { label: 'Delivered', color: 'text-emerald-700', bgColor: 'bg-emerald-50 border-emerald-200', step: 5 },
+        awb_received: { label: 'Booking Confirmed', color: 'text-blue-700', bgColor: 'bg-blue-50 border-blue-200', step: 4 },
+        booking_requested: { label: 'Booking Confirmed', color: 'text-blue-700', bgColor: 'bg-blue-50 border-blue-200', step: 4 },
+    };
+    return stageMap[stage || ''] || { label: 'New', color: 'text-slate-700', bgColor: 'bg-slate-50 border-slate-200', step: 0 };
 }
 
 // ============ SUB-COMPONENTS ============

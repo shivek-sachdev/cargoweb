@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ProductForm } from '@/components/settings/product-form';
@@ -66,6 +66,12 @@ export default function EditProductPage() {
                     <h1 className="text-3xl font-bold">Edit Product</h1>
                     <p className="text-slate-500">Update product details and default charges</p>
                 </div>
+                <Link href={`/settings/products/${id}/documents`}>
+                    <Button variant="outline" className="ml-auto">
+                        <FileText className="h-4 w-4 mr-2" />
+                        Document Templates
+                    </Button>
+                </Link>
             </div>
 
             <ProductForm initialData={product} />

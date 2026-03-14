@@ -45,7 +45,7 @@ export default function EmailBookingPage() {
           setEmailSubject(subject);
         } else {
           toast.error('Quotation not found');
-          router.push('/shipping-calculator');
+          router.push('/quotations');
         }
       } catch (error) {
         console.error('Error loading quotation:', error);
@@ -181,7 +181,7 @@ export default function EmailBookingPage() {
       <div className="container mx-auto p-4">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-red-600">Quotation not found</h1>
-          <Button onClick={() => router.push('/shipping-calculator')} className="mt-4">
+          <Button onClick={() => router.push('/quotations')} className="mt-4">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Quotations
           </Button>
@@ -198,7 +198,7 @@ export default function EmailBookingPage() {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => router.push('/shipping-calculator')}
+            onClick={() => router.push('/quotations')}
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>

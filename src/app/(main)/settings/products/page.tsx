@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, Pencil, Trash, Package } from 'lucide-react';
+import { Plus, Pencil, Trash, Package, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -113,6 +113,14 @@ export default function ProductSettingsPage() {
                                                 >
                                                     <Pencil className="h-4 w-4 mr-1" />
                                                     Edit
+                                                </Button>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => router.push(`/settings/products/${product.id}/documents`)}
+                                                >
+                                                    <FileText className="h-4 w-4 mr-1" />
+                                                    Docs
                                                 </Button>
                                                 <Button
                                                     variant="outline"

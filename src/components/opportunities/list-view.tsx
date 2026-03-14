@@ -41,7 +41,7 @@ export function ListView({ opportunities, onEdit, onDelete, onWinCase, onLoseCas
   };
 
   const handleViewQuotation = (quotationId: string) => {
-    router.push(`/shipping-calculator/preview?id=${quotationId}`);
+    router.push(`/quotations/preview?id=${quotationId}`);
   };
 
   return (

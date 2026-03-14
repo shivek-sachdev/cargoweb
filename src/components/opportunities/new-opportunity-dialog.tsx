@@ -173,7 +173,7 @@ export function OpportunityDialog({
             amount: typeof values.amount === 'number' ? values.amount : 0,
             currency: 'THB',
             // Only set defaults if creating
-            stage: initialData?.stage || 'inquiry',
+            stage: initialData?.stage || 'new',
             probability: initialData?.probability || 10,
             closeDate: initialData?.closeDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
             ownerName: initialData?.ownerName || 'Current User',

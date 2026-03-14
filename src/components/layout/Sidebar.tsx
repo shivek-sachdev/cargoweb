@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -39,7 +39,7 @@ const MENU_GROUPS = [
   {
     title: 'TOOLS',
     items: [
-      { href: '/shipping-calculator', icon: Calculator, label: 'Shipping Calculator' },
+      { href: '/quotations', icon: Calculator, label: 'Quotations' },
       { href: '/document-submissions', icon: FileText, label: 'Document Submissions' },
       { href: '/document-comparison', icon: FileCheck, label: 'Document Comparison' },
       { href: '/calendar', icon: Calendar, label: 'Calendar' },

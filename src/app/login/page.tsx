@@ -58,7 +58,7 @@ export default function LoginPage() {
         }));
         
         setSuccessMessage('Login successful! Redirecting...');
-        setDebugInfo((prev) => prev + `\nStored auth_session in localStorage.\nWill redirect to /shipping-calculator in 2 seconds...\n`);
+        setDebugInfo((prev) => prev + `\nStored auth_session in localStorage.\nWill redirect to /quotations in 2 seconds...\n`);
         
         // Give Supabase time to properly set the cookie
         await new Promise(resolve => setTimeout(resolve, 500));
@@ -69,7 +69,7 @@ export default function LoginPage() {
         // Use hard redirect with longer delay for debugging
         setTimeout(() => {
           // Use complete URL to force a full page refresh
-          window.location.href = `${window.location.origin}/shipping-calculator`;
+          window.location.href = `${window.location.origin}/quotations`;
         }, 1500);
       } else {
         setErrorMessage('Login failed. No session returned.');

@@ -206,6 +206,16 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
                             </div>
                         </div>
                     </div>
+                    <div className="flex items-center gap-4">
+                        {(opportunity.amount > 0 || (opportunity.quotations && opportunity.quotations.length > 0)) && (
+                            <div className="text-right">
+                                <div className="text-2xl font-black text-emerald-700">
+                                    {(opportunity.amount > 0 ? opportunity.amount : opportunity.quotations?.reduce((s, q) => s + (q.total_cost || 0), 0) || 0).toLocaleString()}
+                                    <span className="text-sm font-normal text-gray-400 ml-1">{opportunity.currency || 'THB'}</span>
+                                </div>
+                                <div className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Deal Value</div>
+                            </div>
+                        )}
                     <div className="flex items-center gap-2">
                         <Button
                             size="sm"
@@ -217,13 +227,14 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
                             <span className="hidden sm:inline">Link Quote</span>
                             <span className="sm:hidden">Link</span>
                         </Button>
-                        <Link href={`/shipping-calculator/new?opportunityId=${opportunity.id}&companyId=${opportunity.companyId}&customerName=${opportunity.customerName}&destinationId=${opportunity.destinationId}`}>
+                        <Link href={`/quotations/new?opportunityId=${opportunity.id}&companyId=${opportunity.companyId}&customerName=${opportunity.customerName}&destinationId=${opportunity.destinationId}`}>
                             <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 font-bold">
                                 <Edit className="h-4 w-4 mr-2" />
                                 <span className="hidden sm:inline">New Quote</span>
                                 <span className="sm:hidden">Quote</span>
                             </Button>
                         </Link>
+                    </div>
                     </div>
                 </div>
 
@@ -386,13 +397,13 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
                                                                 AI Review
                                                             </Button>
                                                         </Link>
-                                                        <Link href={`/shipping-calculator/new?id=${quote.id}`}>
+                                                        <Link href={`/quotations/new?id=${quote.id}`}>
                                                             <Button variant="outline" size="sm" className="h-8 text-xs border-slate-200">
                                                                 <Edit className="h-3.5 w-3.5 mr-1.5" />
                                                                 Edit
                                                             </Button>
                                                         </Link>
-                                                        <Link href={`/shipping-calculator/preview?id=${quote.id}`}>
+                                                        <Link href={`/quotations/preview?id=${quote.id}`}>
                                                             <Button variant="outline" size="sm" className="h-8 text-xs border-slate-200">
                                                                 <FileText className="h-3.5 w-3.5 mr-1.5" />
                                                                 PDF

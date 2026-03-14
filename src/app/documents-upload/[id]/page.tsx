@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
+import { getQuotationById } from '@/lib/db';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -136,9 +137,21 @@ export default function DocumentUploadPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewLoading, setPreviewLoading] = useState<Record<string, boolean>>({});
   const [isThaiGacp, setIsThaiGacp] = useState(false);
+  const [requiredDocTypes, setRequiredDocTypes] = useState<string[] | null>(null);
 
-  // Computed document categories based on Thai GACP toggle
-  const currentCategories = [
+  useEffect(() => {
+    if (!quotationId) return;
+    getQuotationById(quotationId).then((q) => {
+      if (q?.required_doc_types && q.required_doc_types.length > 0) {
+        setRequiredDocTypes(q.required_doc_types);
+      }
+    }).catch(() => {});
+  }, [quotationId]);
+
+  const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+  // Computed document categories - filter by requiredDocTypes when product-specific template is set
+  const baseCategories = [
     ...DOCUMENT_CATEGORIES,
     {
       id: 'gacp-certification',
@@ -146,6 +159,13 @@ export default function DocumentUploadPage() {
       types: isThaiGacp ? GACP_DOCS_FARM : GACP_DOCS_STANDARD
     }
   ];
+
+  const currentCategories = requiredDocTypes && requiredDocTypes.length > 0
+    ? baseCategories.map(cat => ({
+        ...cat,
+        types: cat.types.filter(t => requiredDocTypes.some(req => normalize(t.id) === normalize(req)))
+      })).filter(cat => cat.types.length > 0)
+    : baseCategories;
 
   // Toggle section open/closed
   const toggleSection = (sectionId: string) => {

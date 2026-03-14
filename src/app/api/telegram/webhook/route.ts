@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { generateQuotationPDF } from '@/lib/quotation-pdf-server';
-import { getQuotationById } from '@/lib/db';
+import { getQuotationById, updateQuotation } from '@/lib/db';
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -62,6 +62,16 @@ async function sendTelegramDocument(chatId: number, fileBuffer: Buffer, fileName
 //  AI Tool definitions – these are callable by Gemini
 // ────────────────────────────────────────────────────────────
 
+/** Parse pallet dimensions from natural language e.g. "80x120x154" or "80 x 120 x 154" */
+function parsePalletDimensions(input?: string): { length: number; width: number; height: number } | null {
+  if (!input || typeof input !== 'string') return null;
+  const match = input.match(/(\d+)\s*[xX×]\s*(\d+)\s*[xX×]\s*(\d+)/);
+  if (match) {
+    return { length: parseInt(match[1], 10), width: parseInt(match[2], 10), height: parseInt(match[3], 10) };
+  }
+  return null;
+}
+
 /** Create a new quotation (draft) in the database. */
 async function toolCreateQuotation(args: {
   customer_name: string;
@@ -70,6 +80,9 @@ async function toolCreateQuotation(args: {
   vehicle_type?: string;
   container_size?: string;
   weight?: number;
+  pallet_dimensions?: string;
+  pallet_quantity?: number;
+  rate_per_kg?: number;
   notes?: string;
 }, chatId?: number) {
   try {
@@ -103,10 +116,20 @@ async function toolCreateQuotation(args: {
       .single();
     if (dest) destinationId = dest.id;
 
-    // Calculate estimated cost if weight is provided
+    // Parse pallet dimensions if provided (e.g. "80x120x154")
+    const palletDims = parsePalletDimensions(args.pallet_dimensions);
+    const qty = args.pallet_quantity ?? 1;
+    const actualWeight = args.weight || 0;
+    let volumeWeight = 0;
+    if (palletDims) {
+      volumeWeight = (palletDims.length * palletDims.width * palletDims.height * qty) / 6000;
+    }
+    const chargeableWeight = Math.max(actualWeight, volumeWeight) || actualWeight;
+
+    // Calculate estimated cost - use rate_per_kg if provided, else lookup from freight_rates
     let totalCost = 0;
-    let appliedRate = 0;
-    if (args.weight && destinationId) {
+    let appliedRate = args.rate_per_kg ?? 0;
+    if (chargeableWeight && destinationId && !args.rate_per_kg) {
       const { data: rates } = await supabase
         .from('freight_rates')
         .select('min_weight, max_weight, base_rate')
@@ -114,14 +137,19 @@ async function toolCreateQuotation(args: {
         .order('min_weight', { ascending: true });
 
       if (rates && rates.length > 0) {
-        const weight = args.weight;
         const applicable =
-          rates.find((r) => weight >= (r.min_weight ?? 0) && weight <= (r.max_weight ?? Infinity)) ||
+          rates.find((r) => chargeableWeight >= (r.min_weight ?? 0) && chargeableWeight <= (r.max_weight ?? Infinity)) ||
           rates[rates.length - 1];
         appliedRate = applicable.base_rate;
-        totalCost = Math.round(appliedRate * weight);
       }
     }
+    if (chargeableWeight && appliedRate) {
+      totalCost = Math.round(appliedRate * chargeableWeight);
+    }
+
+    const pallets = palletDims
+      ? [{ length: palletDims.length, width: palletDims.width, height: palletDims.height, weight: actualWeight / qty || 0, quantity: qty }]
+      : (actualWeight ? [{ length: 0, width: 0, height: 0, weight: actualWeight, quantity: 1 }] : [{ length: 0, width: 0, height: 0, weight: 0, quantity: 1 }]);
 
     const quotationData = {
       company_id: companyId,
@@ -132,12 +160,14 @@ async function toolCreateQuotation(args: {
       delivery_service_required: false,
       delivery_vehicle_type: '4wheel',
       additional_charges: [],
+      pallets,
       status: 'draft',
       total_cost: totalCost,
       total_freight_cost: totalCost,
-      total_actual_weight: args.weight || 0,
-      chargeable_weight: args.weight || 0,
-      notes: args.notes || `Created via Telegram Bot – ${args.customer_name} to ${args.destination_country}${args.weight ? ` (${args.weight}kg)` : ''}`,
+      total_actual_weight: actualWeight,
+      total_volume_weight: volumeWeight,
+      chargeable_weight: chargeableWeight,
+      notes: args.notes || `Created via Telegram Bot – ${args.customer_name} to ${args.destination_country}${chargeableWeight ? ` (${chargeableWeight}kg)` : ''}`,
     };
 
     const { data: savedQuotation, error: insertError } = await supabase
@@ -224,6 +254,98 @@ async function toolListQuotations(args: { limit?: number }) {
   return { quotations: data || [] };
 }
 
+/** Update quotation rate or other fields. */
+async function toolUpdateQuotation(args: {
+  quotation_no?: string;
+  quotation_id?: string;
+  new_rate_per_kg?: number;
+  total_cost?: number;
+}, chatId?: number) {
+  try {
+    let quote: { id: string; quotation_no: string; chargeable_weight: number; total_cost: number } | null = null;
+    if (args.quotation_id) {
+      const { data } = await supabase.from('quotations').select('id, quotation_no, chargeable_weight, total_cost').eq('id', args.quotation_id).single();
+      quote = data;
+    } else if (args.quotation_no) {
+      const { data } = await supabase.from('quotations').select('id, quotation_no, chargeable_weight, total_cost').ilike('quotation_no', args.quotation_no).limit(1).single();
+      quote = data;
+    }
+    if (!quote) return { error: 'Quotation not found.' };
+
+    const updates: Record<string, unknown> = {};
+    if (args.new_rate_per_kg != null && quote.chargeable_weight) {
+      const newTotal = Math.round(args.new_rate_per_kg * quote.chargeable_weight);
+      updates.total_freight_cost = newTotal;
+      updates.total_cost = newTotal;
+    }
+    if (args.total_cost != null) {
+      updates.total_cost = args.total_cost;
+      updates.total_freight_cost = args.total_cost;
+    }
+    if (Object.keys(updates).length === 0) return { error: 'No updates provided.' };
+
+    const updated = await updateQuotation(quote.id, updates as Parameters<typeof updateQuotation>[1]);
+    if (!updated) return { error: 'Failed to update quotation.' };
+
+    if (chatId) {
+      const full = await getQuotationById(quote.id);
+      if (full) {
+        const pdfBuffer = await generateQuotationPDF(full);
+        await sendTelegramDocument(chatId, pdfBuffer, `Quotation_${full.quotation_no || quote.id}.pdf`, 'Updated quotation PDF.');
+      }
+    }
+    return { success: true, quotation_no: quote.quotation_no, message: 'Quotation updated. PDF sent.' };
+  } catch (e) {
+    console.error('toolUpdateQuotation:', e);
+    return { error: e instanceof Error ? e.message : 'Update failed.' };
+  }
+}
+
+/** Send quotation PDF to chat. */
+async function toolGetQuotationPDF(args: { quotation_no?: string; quotation_id?: string }, chatId?: number) {
+  try {
+    let quote: { id: string; quotation_no: string } | null = null;
+    if (args.quotation_id) {
+      const { data } = await supabase.from('quotations').select('id, quotation_no').eq('id', args.quotation_id).single();
+      quote = data;
+    } else if (args.quotation_no) {
+      const { data } = await supabase.from('quotations').select('id, quotation_no').ilike('quotation_no', args.quotation_no).limit(1).single();
+      quote = data;
+    }
+    if (!quote || !chatId) return { error: 'Quotation not found or chat not available.' };
+
+    const full = await getQuotationById(quote.id);
+    if (!full) return { error: 'Could not load quotation data.' };
+    const pdfBuffer = await generateQuotationPDF(full);
+    await sendTelegramDocument(chatId, pdfBuffer, `Quotation_${full.quotation_no || quote.id}.pdf`, 'Here is your quotation PDF.');
+    return { success: true, message: 'PDF sent.' };
+  } catch (e) {
+    console.error('toolGetQuotationPDF:', e);
+    return { error: e instanceof Error ? e.message : 'Failed to generate PDF.' };
+  }
+}
+
+/** List customers (companies). */
+async function toolListCustomers(args: { limit?: number }) {
+  const { data } = await supabase
+    .from('companies')
+    .select('id, name')
+    .order('name')
+    .limit(args.limit || 20);
+  return { customers: data || [] };
+}
+
+/** List quotations for a customer. */
+async function toolGetCustomerQuotations(args: { customer_name: string; limit?: number }) {
+  const { data } = await supabase
+    .from('quotations')
+    .select('id, quotation_no, customer_name, destination, status, total_cost')
+    .ilike('company_name', `%${args.customer_name}%`)
+    .order('created_at', { ascending: false })
+    .limit(args.limit || 10);
+  return { quotations: data || [] };
+}
+
 /** Get freight rates for a destination. */
 async function toolGetRates(args: { destination: string; weight?: number }) {
   // Find destination first
@@ -278,16 +400,65 @@ const AI_TOOLS = [
     functionDeclarations: [
       {
         name: 'createQuotation',
-        description: 'Create a new cargo shipping quotation draft.',
+        description: 'Create a new cargo shipping quotation. Supports pallet dimensions (e.g. 80x120x154 cm), weight, and standard freight rates. Example: "Create quotation for Customer X to Zurich, pallet 80x120x154, standard rate"',
         parameters: {
           type: 'OBJECT',
           properties: {
             customer_name: { type: 'STRING', description: 'Name of the shipping company or customer.' },
-            destination_country: { type: 'STRING', description: 'Country of destination.' },
+            destination_country: { type: 'STRING', description: 'Country of destination (e.g. Switzerland, Zurich).' },
             weight: { type: 'NUMBER', description: 'Total weight in kg (optional).' },
+            pallet_dimensions: { type: 'STRING', description: 'Pallet dimensions as LxWxH in cm, e.g. "80x120x154".' },
+            pallet_quantity: { type: 'NUMBER', description: 'Number of pallets (default 1).' },
+            rate_per_kg: { type: 'NUMBER', description: 'Override freight rate per kg if user specifies (e.g. 315).' },
             notes: { type: 'STRING', description: 'Any additional shipping notes.' },
           },
           required: ['customer_name', 'destination_country'],
+        },
+      },
+      {
+        name: 'updateQuotation',
+        description: 'Update an existing quotation, e.g. change the rate. Example: "Change the rate from 300 to 315" or "Update quotation Q-001 rate to 315".',
+        parameters: {
+          type: 'OBJECT',
+          properties: {
+            quotation_no: { type: 'STRING', description: 'Quotation number (e.g. QT-2025-0001).' },
+            quotation_id: { type: 'STRING', description: 'Quotation UUID if known.' },
+            new_rate_per_kg: { type: 'NUMBER', description: 'New freight rate per kg.' },
+            total_cost: { type: 'NUMBER', description: 'New total cost (alternative to rate).' },
+          },
+        },
+      },
+      {
+        name: 'getQuotationPDF',
+        description: 'Generate and send the quotation PDF to the user.',
+        parameters: {
+          type: 'OBJECT',
+          properties: {
+            quotation_no: { type: 'STRING', description: 'Quotation number.' },
+            quotation_id: { type: 'STRING', description: 'Quotation UUID.' },
+          },
+        },
+      },
+      {
+        name: 'listCustomers',
+        description: 'List all customers/companies.',
+        parameters: {
+          type: 'OBJECT',
+          properties: {
+            limit: { type: 'NUMBER', description: 'Max number to return (default 20).' },
+          },
+        },
+      },
+      {
+        name: 'getCustomerQuotations',
+        description: 'List quotations for a specific customer.',
+        parameters: {
+          type: 'OBJECT',
+          properties: {
+            customer_name: { type: 'STRING', description: 'Customer or company name.' },
+            limit: { type: 'NUMBER', description: 'Max number (default 10).' },
+          },
+          required: ['customer_name'],
         },
       },
       {
@@ -328,12 +499,14 @@ const AI_TOOLS = [
 ];
 
 const SYSTEM_INSTRUCTION = `
-You are the OMGEXP Cargo Portal assistant. You help users manage shipping quotations.
-- To create a quotation, you need the customer name and destination.
-- You can check freight rates for specific countries.
-- If a user asks for rates or price, use getFreightRates.
-- If the weight is known, always provide a price estimation using getFreightRates.
-- If the user confirms they want to proceed with a quotation, use createQuotation.
+You are the OMGEXP Cargo Portal assistant. You help users manage shipping quotations via natural language.
+- Create quotation: "Create a quotation for Customer X, for Zurich using standard rate, pallet size is 80 x 120 x 154" - use createQuotation with customer_name, destination_country, and pallet_dimensions "80x120x154".
+- Update rate: "Change the rate from 300 to 315" - use updateQuotation with new_rate_per_kg: 315 (identify the quotation from context or ask).
+- Send PDF: "Send me the PDF for Q-001" - use getQuotationPDF.
+- List customers: use listCustomers.
+- Customer quotations: "Show quotations for Customer X" - use getCustomerQuotations.
+- Always generate and send the PDF after creating or updating a quotation when the user is in a chat.
+- Parse pallet dimensions from formats like "80x120x154", "80 x 120 x 154", "80×120×154".
 - Be professional, concise, and helpful.
 `;
 
@@ -379,8 +552,9 @@ export async function POST(request: NextRequest) {
           '• Check shipment document status\n' +
           '• List recent quotations\n\n' +
           'Just type naturally — for example:\n' +
-          '_"Create a quotation for Pharma Corp shipping to Switzerland"_\n' +
-          '_"Check status of QT-2025-0001"_',
+          '_"Create a quotation for Customer X to Zurich, pallet 80x120x154, standard rate"_\n' +
+          '_"Change the rate from 300 to 315"_\n' +
+          '_"Send me the PDF for QT-2025-0001"_',
         'Markdown'
       );
       return NextResponse.json({ ok: true });
@@ -469,6 +643,18 @@ export async function POST(request: NextRequest) {
         switch (call.name) {
           case 'createQuotation':
             toolResult = await toolCreateQuotation(call.args as Parameters<typeof toolCreateQuotation>[0], chatId);
+            break;
+          case 'updateQuotation':
+            toolResult = await toolUpdateQuotation(call.args as Parameters<typeof toolUpdateQuotation>[0], chatId);
+            break;
+          case 'getQuotationPDF':
+            toolResult = await toolGetQuotationPDF(call.args as Parameters<typeof toolGetQuotationPDF>[0], chatId);
+            break;
+          case 'listCustomers':
+            toolResult = await toolListCustomers(call.args as Parameters<typeof toolListCustomers>[0]);
+            break;
+          case 'getCustomerQuotations':
+            toolResult = await toolGetCustomerQuotations(call.args as Parameters<typeof toolGetCustomerQuotations>[0]);
             break;
           case 'checkStatus':
             toolResult = await toolCheckStatus(call.args as Parameters<typeof toolCheckStatus>[0]);

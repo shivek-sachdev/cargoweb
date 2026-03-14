@@ -114,7 +114,7 @@ export default function EmailBookingListPage() {
           <p className="text-muted-foreground">Create booking emails from accepted quotations</p>
         </div>
         <Button asChild>
-          <Link href="/shipping-calculator">
+          <Link href="/quotations">
             <Plus className="h-4 w-4 mr-2" />
             View All Quotations
           </Link>
@@ -159,7 +159,7 @@ export default function EmailBookingListPage() {
                 }
               </p>
               <Button asChild>
-                <Link href="/shipping-calculator">
+                <Link href="/quotations">
                   <FileText className="h-4 w-4 mr-2" />
                   View All Quotations
                 </Link>
@@ -217,7 +217,7 @@ export default function EmailBookingListPage() {
                             size="sm"
                             asChild
                           >
-                            <Link href={`/shipping-calculator/preview?id=${quotation.id}`}>
+                            <Link href={`/quotations/preview?id=${quotation.id}`}>
                               <FileText className="h-4 w-4 mr-1" />
                               View
                             </Link>

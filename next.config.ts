@@ -12,11 +12,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // Exclude ai-doc-review-main from compilation
   webpack: (config) => {
     config.watchOptions = {
       ...config.watchOptions,
-      ignored: ['**/ai-doc-review-main/**', '**/node_modules/**'],
+      ignored: ['**/node_modules/**'],
     };
     return config;
   },

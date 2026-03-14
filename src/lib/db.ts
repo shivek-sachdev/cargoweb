@@ -1487,3 +1487,22 @@ export async function deleteProduct(id: string) {
     return false;
   }
 }
+
+export async function getProductDocumentTemplates(productId: string): Promise<{ document_type_id: string }[]> {
+  try {
+    const { data, error } = await supabase
+      .from('product_document_templates')
+      .select('document_type_id')
+      .eq('product_id', productId)
+      .order('sort_order');
+
+    if (error) {
+      console.error('Error fetching product document templates:', error);
+      return [];
+    }
+    return (data || []) as { document_type_id: string }[];
+  } catch (err) {
+    console.error('Failed to get product document templates:', err);
+    return [];
+  }
+}

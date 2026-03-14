@@ -114,22 +114,26 @@ export function QuotationDocuments({ quotationId, requiredDocTypes }: QuotationD
 
     const uploadedTypesNormalized = documents.map(d => normalize(d.document_type || ''));
 
-    // Process all categories
+    // Process all categories - when requiredDocTypes is set (product-specific), filter to only show those document types
     const processedCategories = ALL_DOC_CATEGORIES.map(cat => {
-        const types = cat.types.map(type => {
+        let types = cat.types.map(type => {
             const isUploaded = uploadedTypesNormalized.some(upType =>
                 upType === normalize(type.id) || upType.includes(normalize(type.id)) || normalize(type.id).includes(upType)
             );
             return { ...type, isUploaded };
         });
+        if (requiredDocTypes && requiredDocTypes.length > 0) {
+            types = types.filter(t => requiredDocTypes.some(req => normalize(t.id) === normalize(req)));
+        }
         const matchedCount = types.filter(t => t.isUploaded).length;
-        const isRequired = requiredDocTypes && requiredDocTypes.some(req =>
-            cat.types.some(t => normalize(t.id) === normalize(req))
+        const isRequired = requiredDocTypes && requiredDocTypes.length > 0 && types.some(t =>
+            requiredDocTypes.some(req => normalize(t.id) === normalize(req))
         );
         return { ...cat, types, matchedCount, isRequired };
-    });
+    }).filter(cat => cat.types.length > 0);
 
     const totalMatched = processedCategories.reduce((sum, cat) => sum + cat.matchedCount, 0);
+    const totalRequired = processedCategories.reduce((sum, cat) => sum + cat.types.length, 0);
 
     const formatDocName = (id: string, name?: string) => {
         const docId = id.toLowerCase();
@@ -157,7 +161,7 @@ export function QuotationDocuments({ quotationId, requiredDocTypes }: QuotationD
                     <div className="min-w-0">
                         <h4 className="text-[10px] font-black uppercase tracking-widest text-emerald-400 leading-none">Audit Status</h4>
                         <p className="text-[9px] text-slate-400 font-bold mt-1.5 uppercase tracking-tighter">
-                            {totalMatched} / {ALL_DOC_CATEGORIES.flatMap(c => c.types).length} Matched
+                            {totalMatched} / {totalRequired} Matched
                         </p>
                     </div>
                 </div>
